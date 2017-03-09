@@ -18,19 +18,23 @@ idx = node.idx;
 data = data(idx,:);
 X = data(:,1:2);
 Y = data(:,end);
+[N,D] = size(data);
+ig_best = -inf; % Initialise best information gain
+idx_best = [];
+iglist = zeros(1, iter);
 
 opts.classifierID = 1;
-opts.numSplits = 100;
+opts.numSplits = 15;
 opts.classifierCommitFirst = true;
 
-[model, bestgain, final_index, iglist] = weakTrain(X, Y, opts);
+[model, bestgain, final_index] = weakTrain(X, Y, opts);
 
 nodeL.idx = idx(final_index);
 nodeR.idx = idx(~final_index);
 
 if visualise
-    visualise_splitfunc(final_index,data,model.r,model.t,bestgain,0)
-    fprintf('Information gain = %f. \n',bestgain);
+    visualise_splitfunc(idx_best,data,dim,t,ig_best,0)
+    fprintf('Information gain = %f. \n',ig_best);
 end
 
 end

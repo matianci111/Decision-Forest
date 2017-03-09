@@ -1,4 +1,4 @@
-function model = weakTrain(X, Y, opts)
+function [model, bestgain, final_index, iglist] = weakTrain(X, Y, opts)
 % weak random learner
 % can currently train:
 % 1. decision stump: look along random dimension of data, choose threshold
@@ -15,6 +15,7 @@ function model = weakTrain(X, Y, opts)
 classifierID= 1; % by default use decision stumps only
 numSplits= 30; 
 classifierCommitFirst= true;
+iglist = [];
 
 if nargin < 3, opts = struct; end
 if isfield(opts, 'classifierID'), classifierID = opts.classifierID; end
@@ -45,7 +46,7 @@ for classf = classifierID
 
     modelCandidate= struct;    
     maxgain= -1;
-
+    index=[];
     if classf == 1
         % Decision stump
 
@@ -62,11 +63,12 @@ for classf = classifierID
             t= rand(1)*(tmax-tmin)+tmin;
             dec = col < t;
             Igain = evalDecision(Y, dec, u);
-
+            iglist(q) = Igain;
             if Igain>maxgain
                 maxgain = Igain;
                 modelCandidate.r= r;
                 modelCandidate.t= t;
+                index = dec;
             end
         end
 
@@ -89,6 +91,7 @@ for classf = classifierID
                 modelCandidate.r1= r1;
                 modelCandidate.r2= r2;
                 modelCandidate.w= w;
+                index = dec;
             end
         end
 
@@ -120,6 +123,7 @@ for classf = classifierID
                 modelCandidate.w= w;
                 modelCandidate.t1= t1;
                 modelCandidate.t2= t2;
+                index = dec;
             end
         end
 
@@ -146,6 +150,7 @@ for classf = classifierID
                 maxgain = Igain;
                 modelCandidate.x= x;
                 modelCandidate.t= t;
+                index = dec;
             end
         end
 
@@ -159,6 +164,7 @@ for classf = classifierID
         bestgain = maxgain;
         model= modelCandidate;
         model.classifierID= classf;
+        final_index = index;
     end
 
 end
