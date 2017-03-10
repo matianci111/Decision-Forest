@@ -11,10 +11,6 @@ function [model, bestgain, final_index, iglist] = weakTrain(X, Y, opts)
 % feature in addition to x, y and offset (as in 2.)
 % 4. Distance learner. Picks a data point in train set and a threshold. The
 % label is computed based on distance to the data point
-
-classifierID= 1; % by default use decision stumps only
-numSplits= 30; 
-classifierCommitFirst= true;
 iglist = [];
 
 if nargin < 3, opts = struct; end

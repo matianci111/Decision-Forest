@@ -1,0 +1,8 @@
+clear
+
+load incrementingdorfor4sfs.mat
+
+plot(g1l)
+plot(g2l)
+plot(g3l)
+plot(g4l)

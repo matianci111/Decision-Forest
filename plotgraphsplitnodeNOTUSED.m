@@ -5,8 +5,8 @@ visualise = 1;
 
 % Initilise child nodes
 iter = param.splitNum;
-nodeL = struct('idx',[],'splitfun',0,'t',nan,'dim',0,'prob',[]);
-nodeR = struct('idx',[],'splitfun',0,'t',nan,'dim',0,'prob',[]);
+nodeL = struct('idx',[],'t',nan,'dim',0,'prob',[]);
+nodeR = struct('idx',[],'t',nan,'dim',0,'prob',[]);
 
 if length(node.idx) <= 5 % make this node a leaf if has less than 5 data points
     node.t = nan;
@@ -19,41 +19,40 @@ data = data(idx,:);
 X = data(:,1:2);
 Y = data(:,end);
 
-opts.classifierID = 4;
+opts.classifierID = 1;
 opts.numSplits = 200;
 opts.classifierCommitFirst = true;
-index = [];
-bestgain=0;
-finalclassifier =0
+g1l =[];
+g2l =[];
+g3l =[];
+g4l =[];
 
+g1total=0;
+g2total=0;
+g3total=0;
+g4total=0;
+for n = 1:70
 opts.classifierID = 1;
 [model1, bestgain1, final_index1, iglist1] = weakTrain(X, Y, opts);
-
+g1total=g1total+bestgain1;
 opts.classifierID = 2;
 [model2, bestgain2, final_index2, iglist2] = weakTrain(X, Y, opts);
-
+g2total=g2total+bestgain2;
 opts.classifierID = 3;
 [model3, bestgain3, final_index3, iglist3] = weakTrain(X, Y, opts);
-
+g3total=g3total+bestgain3;
 opts.classifierID = 4;
 [model4, bestgain4, final_index4, iglist4] = weakTrain(X, Y, opts);
-if bestgain1>bestgain2 && bestgain1>bestgain3 && bestgain1>bestgain4
-    index = final_index1;
+g4total=g4total+bestgain4;
 end
-if bestgain2>bestgain1 && bestgain2>bestgain3 && bestgain2>bestgain4
-    index = final_index2;
-end
-if bestgain3>bestgain2 && bestgain3>bestgain1 && bestgain3>bestgain4
-    index = final_index3;
-end
-if bestgain4>bestgain2 && bestgain4>bestgain3 && bestgain4>bestgain1
-    index = final_index4;
-end
+g1a=g1total/70;
+g2a=g2total/70;
+g3a=g3total/70;
+g4a=g4total/70;
 
 
-node.splitfun = 
-nodeL.idx = idx(index);
-nodeR.idx = idx(~index);
+%nodeL.idx = idx(final_index1);
+%nodeR.idx = idx(~final_index1);
 
 %if visualise
 %    visualise_splitfunc(final_index1,data,model1.r,model1.t,bestgain1,0)
