@@ -1,22 +1,60 @@
 function label = testTrees(data,tree)
 % Slow version - pass data point one-by-one
-
+[N, D]= size(data);
 cc = [];
 for T = 1:length(tree)
     for m = 1:size(data,1);
         idx = 1;
         
-        while tree(T).node(idx).dim
-            t = tree(T).node(idx).t;
-            dim = tree(T).node(idx).dim;
-            % Decision
-            if data(m,dim) < t % Pass data to left node
-                idx = idx*2;
-            else
-                idx = idx*2+1; % and to right
+        while ~tree(T).node(idx).isleaf
+            switch tree(T).node(idx).splitfun
+                case 1
+                    t = tree(T).node(idx).model.t;
+                    r = tree(T).node(idx).model.r;
+                    % Decision
+                    if data(m,r) < t % Pass data to left node
+                        idx = idx*2;
+                    else
+                        idx = idx*2+1; % and to right
+                    end
+                case 2
+                    w = tree(T).node(idx).model.w;
+                    r1 = tree(T).node(idx).model.r1;
+                    r2 = tree(T).node(idx).model.r2;
+                    % Decision
+                    if [data(m, [r1 r2]), ones(N, 1)]*w < 0; % Pass data to left node
+                        idx = idx*2;
+                    else
+                        idx = idx*2+1; % and to right
+                    end
+                case 3
+                    r1= tree(T).node(idx).model.r1;
+                    r2= tree(T).node(idx).model.r2;
+                    w= tree(T).node(idx).model.w;
+                    t1= tree(T).node(idx).model.t1;
+                    t2= tree(T).node(idx).model.t2;
+                    phi= [data(m, r1).*data(m, r2), data(m,r1).^2, data(m,r2).^2, data(m, r1), data(m, r2), ones(N, 1)];
+                    mv= phi*w;
+                    % Decision
+                    if mv<t2 && mv>t1; % Pass data to left node
+                        idx = idx*2;
+                    else
+                        idx = idx*2+1; % and to right
+                    end
+                case 4
+                    x= tree(T).node(idx).model.x;
+                    t= tree(T).node(idx).model.t;
+                    dsts= pdist2(data(m, [1 2]), x);
+                    if dsts < t
+                        idx = idx*2;
+                    else
+                        idx = idx*2+1; % and to right
+                    end
+                otherwise
+                    disp('unknown splifunction')
             end
-            
         end
+        
         leaf_idx = tree(T).node(idx).leaf_idx;
         
         if ~isempty(tree(T).leaf(leaf_idx))

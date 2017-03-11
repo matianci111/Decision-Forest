@@ -1,16 +1,28 @@
-function [node,nodeL,nodeR] = splitNode(data,node,param, T)
+function [node,nodeL,nodeR] = splitNode(data,node,param, T, maxdepth, nodeindex)
 % Split node
 
 visualise = 1;
-
+labels = [1 2 3];
 % Initilise child nodes
-iter = param.splitNum;
 nodeL = struct('idx',[],'model',struct,'splitfun',0,'isleaf',0,'prob',[]);
 nodeR = struct('idx',[],'model',struct,'splitfun',0,'isleaf',0,'prob',[]);
 
-if length(node.idx) <= 5 % make this node a leaf if has less than 5 data points stopping criteria
+if length(node.idx) == 0
+    return;
+end
+
+if length(node.idx) <= param.emptysize % make this node a leaf if has less than 5 data points stopping criteria
     node.isleaf = 1;
     return;
+end
+
+prob = reshape(histc(data(node.idx,end),labels),[],1);
+prob = prob/sum(prob);
+for i = 1:size(prob,1)
+    if prob(i) >= param.stopprob
+        node.isleaf = 1;
+        return;
+    end
 end
 
 idx = node.idx;
@@ -20,7 +32,7 @@ Y = data(:,end);
 
 %initialize parameters, classifiercommitfirst is unavailable
 opts.classifierID = 0;
-opts.numSplits = 200;
+opts.numSplits = param.splitNum;
 opts.classifierCommitFirst = true;
 index = [];
 bestgain=0;
@@ -46,26 +58,40 @@ if bestgain1>=bestgain2 && bestgain1>=bestgain3 && bestgain1>=bestgain4
     index = final_index1;
     finalclassifier=1;
     model = model1;
+    bestgain = bestgain1;
 end
 if bestgain2>=bestgain1 && bestgain2>=bestgain3 && bestgain2>=bestgain4
     index = final_index2;
     finalclassifier=2;
     model = model2;
+    bestgain = bestgain2;
 end
 if bestgain3>=bestgain2 && bestgain3>=bestgain1 && bestgain3>=bestgain4
     index = final_index3;
     finalclassifier=3;
     model = model3;
+    bestgain = bestgain3;
 end
 if bestgain4>=bestgain2 && bestgain4>=bestgain3 && bestgain4>=bestgain1
     index = final_index4;
     finalclassifier=4;
     model = model4;
+    bestgain = bestgain4;
 end
 
 
 node.splitfun = finalclassifier;
 node.model = model;
+
+if nodeindex > 2^(maxdepth-2)-1
+    if ~isempty(idx(index))
+        nodeL.isleaf = 1;
+    end
+    if ~isempty(idx(~index))
+        nodeR.isleaf = 1;
+    end
+end
+
 nodeL.idx = idx(index);
 nodeR.idx = idx(~index);
 
