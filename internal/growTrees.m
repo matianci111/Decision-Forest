@@ -25,7 +25,11 @@ for T = 1:param.num
     
     % Split Nodes
     for n = 1:2^(param.depth-1)-1
-        [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = splitNode(data,tree(T).node(n),param, T, maxdepth, n);
+        if param.classID == 5
+            [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = multisplitnode(data,tree(T).node(n),param, T, maxdepth, n);
+        else
+            [tree(T).node(n),tree(T).node(n*2),tree(T).node(n*2+1)] = splitNode(data,tree(T).node(n),param, T, maxdepth, n);
+        end
     end
     
     % Leaf Nodes

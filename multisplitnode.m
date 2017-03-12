@@ -1,4 +1,4 @@
-function [node,nodeL,nodeR] = splitNode(data,node,param, T, maxdepth, nodeindex)
+function [node,nodeL,nodeR] = multisplitnode(data,node,param, T, maxdepth, nodeindex)
 % Split node
 
 visualise = 1;
@@ -97,6 +97,12 @@ if nodeindex > 2^(maxdepth-2)-1
     if ~isempty(idx(~index))
         nodeR.isleaf = 1;
     end
+end
+
+if isempty(idx(index)) || isempty(idx(~index))
+    node.splitfun = 0;
+    node.isleaf = 1;
+    return;
 end
 
 nodeL.idx = idx(index);

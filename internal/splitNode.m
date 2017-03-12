@@ -52,7 +52,7 @@ opts.classifierID = 3;
 %}
 [model4, bestgain4, final_index4, iglist4] = weakTrain(X, Y, opts);
 index = final_index4;
-finalclassifier=4;
+finalclassifier=param.classID;
 model = model4;
 bestgain = bestgain4;
 
@@ -66,6 +66,12 @@ if nodeindex > 2^(maxdepth-2)-1
     if ~isempty(idx(~index))
         nodeR.isleaf = 1;
     end
+end
+
+if isempty(idx(index)) || isempty(idx(~index))
+    node.splitfun = 0;
+    node.isleaf = 1;
+    return;
 end
 
 nodeL.idx = idx(index);
