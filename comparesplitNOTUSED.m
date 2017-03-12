@@ -31,7 +31,7 @@ X = data(:,1:2);
 Y = data(:,end);
 
 %initialize parameters, classifiercommitfirst is unavailable
-opts.classifierID = param.classID;
+opts.classifierID = 0;
 opts.numSplits = param.splitNum;
 opts.classifierCommitFirst = true;
 index = [];
@@ -50,12 +50,41 @@ opts.classifierID = 2;
 opts.classifierID = 3;
 [model3, bestgain3, final_index3, iglist3] = weakTrain(X, Y, opts);
 %}
+opts.classifierID = 4;
 [model4, bestgain4, final_index4, iglist4] = weakTrain(X, Y, opts);
 index = final_index4;
 finalclassifier=4;
 model = model4;
 bestgain = bestgain4;
+%choose the best split function and use its models to determine future test
+%data
+%{
+if bestgain1>=bestgain2 && bestgain1>=bestgain3 && bestgain1>=bestgain4
+    index = final_index1;
+    finalclassifier=1;
+    model = model1;
+    bestgain = bestgain1;
+end
+if bestgain2>=bestgain1 && bestgain2>=bestgain3 && bestgain2>=bestgain4
+    index = final_index2;
+    finalclassifier=2;
+    model = model2;
+    bestgain = bestgain2;
+end
+if bestgain3>=bestgain2 && bestgain3>=bestgain1 && bestgain3>=bestgain4
+    index = final_index3;
+    finalclassifier=3;
+    model = model3;
+    bestgain = bestgain3;
+end
+if bestgain4>=bestgain2 && bestgain4>=bestgain3 && bestgain4>=bestgain1
+    index = final_index4;
+    finalclassifier=4;
+    model = model4;
+    bestgain = bestgain4;
+end
 
+%}
 node.splitfun = finalclassifier;
 node.model = model;
 
